@@ -1,0 +1,464 @@
+
+// Общая обёртка
+
+.timeline_wrap {
+  
+  // На случай, если не подключен файл с базовыми стилями
+  *, *:before, *:after {
+    box-sizing: border-box;
+  }
+}
+
+
+
+// Верхняя часть, «шапка»
+
+.timeline_header {
+  margin: 1rem 0 @event_margin_bottom;
+  background: @event_color;
+  color: #fff;
+  padding: @event_padding;
+  position: relative;
+
+  //  Для малых вьюпортов нужно добавить паддинг слева — прибавляем ширину линии, соединяющей события
+  @media (max-width: @screen-xs-max) {
+    padding-left: @event_padding + @event_line_width;
+  }
+
+  @media (min-width: @screen-md) {
+    text-align: center;
+  }
+
+  // Это линия от блока «шапки» к общей нижней линии
+  &:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: (@event_margin_bottom * -1) - @event_line_width;
+    height: @event_margin_bottom + @event_line_width;
+    width: @event_line_width;
+    background: @event_color;
+
+    @media (min-width: @screen-sm) {
+      left: (@event_date_height + @event_bullit_margin + @event_line_width) - (@event_date_height - round((@event_bullit_size / 2), 1) + (@event_line_width / 2) - @event_line_width);
+    }
+    @media (min-width: @screen-md) {
+      left: 50%;
+      margin-left: (@event_line_width / -2);
+      height: @event_margin_bottom + @event_line_width + (@event_margin_bottom / 2);
+      bottom: (@event_margin_bottom * -1) - @event_line_width - (@event_margin_bottom / 2);
+    }
+  }
+
+  &__h1 {
+    font-size: @event_h1_size;
+    color: inherit;
+    font-family: @event_headers_family;
+    font-weight: @event_headers_weight;
+    line-height: 1;
+    margin: .1em 0 (@font-size-base * @line-height-base);
+  }
+
+  &__description {
+    p:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+
+
+.timeline {
+  position: relative;
+
+  // На малых вьюпортах линия, соединяющая события, находится слева
+  @media (min-width: @screen-sm) {
+    padding-left: @event_date_height + @event_bullit_margin + @event_line_width;
+  }
+
+  // На средних вьпортах блоки выстраиваются в строку по два
+  @media (min-width: @screen-md) {
+    padding-left: 0;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-start;
+  }
+}
+
+
+
+.event {
+  margin: (@event_margin_bottom / 2) 0 @event_margin_bottom;
+  position: relative;
+  width: 100%;
+
+  // На малых вюьпортах линия слева и без буллитов
+  @media (max-width: @screen-xs-max) {
+    &:not(:last-child) {
+      &:after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: (@event_margin_bottom * -1);
+        width: @event_line_width;
+        background: @event_color;
+      }
+    }
+  }
+
+  @media (min-width: @screen-sm) {
+
+    &:not(:last-child) {
+      // Это линия, соденяющая события
+      &:before {
+        content: '';
+        position: absolute;
+        top: @event_bullit_size + (@event_line_width * 2) + (@event_bullit_margin * 2) - @event_line_width;
+        left: (@event_date_height * -1) + round((@event_bullit_size / 2), 1) - (@event_line_width / 2) + @event_line_width;
+        width: @event_line_width;
+        background: @event_color;
+        bottom: (@event_margin_bottom * -1) - @event_line_width;
+      }
+    }
+  }
+
+  @media (min-width: @screen-md) {
+    display: block;
+    flex: auto;
+    max-width: 50%;
+
+    &:nth-child(2n-1) {
+      padding-right: @event_date_height;
+
+      &:not(:last-child) {
+        // Это линия, соединяющая события. На этом вьюпорта она короткая — соединяет два буллита
+        &:before {
+          left: auto;
+          right: (@event_line_width / -2);
+          top: @event_bullit_size + @event_line_width + (@event_bullit_margin * 2);
+          bottom: auto;
+          height: (@event_bullit_size * 2) - (@event_bullit_size + (@event_line_width * 2) + (@event_bullit_margin * 2)) + @event_line_width * 2;
+        }
+        // Продублируем и нижнюю линию (под буллитами), ибо неизвестно какой блок выше. Но только если это не предпоследее событие
+        &:not(:nth-last-child(2)) {
+          &:after {
+            content: '';
+            position: absolute;
+            right: (@event_line_width / -2);
+            top: max((@event_bullit_size * 2), (@event_bullit_size + @event_line_width + @event_bullit_margin * 2)) + @event_bullit_size + @event_line_width + (@event_bullit_margin * 2);
+            bottom: (@event_margin_bottom * -1) + ((@event_margin_bottom / 2) * -1) - @event_line_width;
+            width: @event_line_width;
+            background: @event_color;
+          }
+        }
+      }
+
+      .event__text-wrap {
+        padding-left: @event_padding;
+        padding-right: @event_date_height + @event_padding;
+
+        &:before {
+          left: auto;
+          right: 0;
+        }
+      }
+
+      .event__point {
+        left: auto;
+        right: @event_date_height + @event_date_height;
+
+        &:before {
+          left: auto;
+          right: (@event_date_height * -2) - (@event_bullit_size / 2) + (@event_line_width / 2);
+        }
+
+        &:after {
+          left: auto;
+          right: (@event_date_height * -2) - ( @event_bullit_size + (@event_line_width * 2) + (@event_bullit_margin * 2) ) / 2 + (@event_line_width / 2);
+          transform: rotate(135deg);
+        }
+      }
+
+      .event__icon {
+        left: auto;
+        right: (@event_date_height * -2) - (@event_bullit_size / 2) + (@event_line_width / 2);
+      }
+
+      .event__date {
+        &:before {
+          top: @event_date_height;
+          height: @event_date_height;
+        }
+      }
+
+      .event__fake_label {
+        right: (@event_date_height * 2);
+        left: 0;
+        width: auto;
+      }
+    }
+
+    &:nth-child(2n) {
+      padding-left: @event_date_height;
+      padding-top: max((@event_bullit_size * 2), (@event_bullit_size + @event_line_width + @event_bullit_margin * 2));
+
+      &:not(:last-child) {
+        // Это линия, соединяющая события
+        &:before {
+          top: @event_bullit_size + (@event_line_width * 2) + (@event_bullit_margin * 2) + max((@event_bullit_size * 2), (@event_bullit_size + @event_line_width + @event_bullit_margin * 2)) - @event_line_width;
+          left: (@event_line_width / -2);
+          bottom: (@event_margin_bottom * -1) + ((@event_margin_bottom / 2) * -1) - @event_line_width;
+        }
+      }
+
+      .event__point {
+        top: max((@event_bullit_size * 2), (@event_bullit_size + @event_line_width + @event_bullit_margin * 2));
+        left: @event_date_height;
+
+        &:before {
+          left: (@event_date_height * -1) - (@event_bullit_size / 2) + (@event_line_width / 2);
+        }
+
+        &:after {
+          left: (@event_date_height * -1) - ( @event_bullit_size + (@event_line_width * 2) + (@event_bullit_margin * 2) ) / 2 + (@event_line_width / 2);
+        }
+      }
+
+      .event__icon {
+        left: (@event_date_height * -1) - (@event_bullit_size / 2) + (@event_line_width / 2);
+      }
+
+      .event__date {
+        &:before {
+          top: @event_date_height * -1;
+          height: @event_date_height;
+        }
+      }
+
+      .event__fake_label {
+        left: (@event_date_height * 2);
+        right: 0;
+        width: auto;
+      }
+    }
+  }
+
+
+
+  &__point {
+    
+    @media (min-width: @screen-sm) {
+      position: absolute;
+      top: 0;
+      left: 0;
+      
+      // Это буллит
+      &:before {
+        content: '';
+        position: absolute;
+        z-index: 2;
+        top: @event_line_width + @event_bullit_margin;
+        left: (@event_date_height * -1) + (@event_line_width / 1.5) + @event_line_width;
+        width: @event_bullit_size;
+        height: @event_bullit_size;
+        border-radius: 50%;
+        background: @event_color;
+      }
+      
+      // Это полукруглая обводка буллита
+      &:after {
+        content: '';
+        position: absolute;
+        z-index: 1;
+        top: (@event_line_width * -2) + (@event_line_width * 2);
+        left: (@event_date_height * -1) + (@event_line_width * -0.5) + (@event_bullit_margin * -1) + @event_line_width;
+        width: @event_bullit_size + (@event_line_width * 2) + (@event_bullit_margin * 2);
+        height: @event_bullit_size + (@event_line_width * 2) + (@event_bullit_margin * 2);
+        border-radius: 50%;
+        border: @event_line_width solid @event_color;
+        border-bottom-color: transparent;
+        border-right-color: transparent;
+        transform: rotate(-45deg);
+      }
+    }
+  }
+
+
+
+  &__icon {
+    display: none;
+
+    @media (min-width: @screen-sm) {
+      display: block;
+      position: absolute;
+      top: @event_line_width + @event_bullit_margin;
+      left: (@event_date_height * -1) + (@event_line_width / 1.5) + @event_line_width;
+      z-index: 3;
+      width: @event_bullit_size;
+      height: @event_bullit_size;
+      line-height: @event_bullit_size;
+      font-size: round(@event_bullit_size / 1.5);
+      color: #fff;
+      text-align: center;
+    }
+  }
+
+
+
+  &__date {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    height: @event_date_height;
+    padding: 0 @event_padding;
+    font-size: @event_h1_size;
+    color: inherit;
+    line-height: 1;
+    font-weight: @event_headers_weight;
+    font-family: @event_headers_family;
+    color: #fff;
+    background-color: @event_color;
+
+    @media (max-width: @screen-xs-max) {
+      padding-left: @event_padding + @event_line_width;
+    }
+
+    small {
+      display: block;
+      font-size: .7em;
+    }
+
+    @media (min-width: @screen-sm) {
+      position: absolute;
+      z-index: 2;
+      top: @event_date_width;
+      left: 0;
+      justify-content: flex-end;
+      height: @event_date_height;
+      width: @event_date_width;
+      text-align: right;
+      transform: rotate(-90deg);
+      transform-origin: 0 0;
+
+      &:before {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        right: (@event_bullit_size + @event_line_width + @event_bullit_margin * 2) / 2;
+        width: @event_line_width;
+        height: @event_date_height - @event_bullit_margin - @event_line_width - round((@event_bullit_size / 2), 1);
+        background-color: @event_color;
+      }
+    }
+  }
+
+
+
+  &__date-inner {
+    display: block;
+  }
+
+
+
+  &__text-wrap {
+    display: block;  // ёбаный IE10!
+    width: 100%;     // ёбаный IE10!
+    position: relative;
+    padding: @event_padding;
+    border: 1px solid @event_color;
+    background: #fff;
+
+    @media (max-width: @screen-xs-max) {
+      padding-left: @event_padding + @event_line_width;
+    }
+
+    @media (min-width: @screen-sm) {
+      position: relative;
+      min-height: @event_date_width;
+      padding-left: @event_date_height + @event_padding;
+
+      &:before {
+        content: '';
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: @event_date_height;
+        background: @event_color;
+      }
+    }
+  }
+
+
+
+  &__name {
+    font-size: @event_h1_size;
+    color: inherit;
+    font-family: @event_headers_family;
+    font-weight: @event_headers_weight;
+    line-height: 1;
+    margin: .1em 0 (@font-size-base * @line-height-base);
+  }
+
+
+
+  &__content {
+    p {
+      margin: 0 0 ((@font-size-base * @line-height-base) / 2);
+    }
+    *:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+
+
+  &__source {}
+
+
+
+  &__source_header {
+    font-family: @event_headers_family;
+    font-weight: @event_headers_weight;
+    font-size: @event_h2_size;
+    margin: (@font-size-base * @line-height-base) 0 .1em;
+  }
+
+
+
+  &__source_list {}
+
+
+
+  &--long-date {
+    @media (min-width: @screen-sm) {
+
+      .event__date {
+        top: @event_date_width--long;
+        width: @event_date_width--long;
+      }
+
+      .event__text-wrap {
+        min-height: @event_date_width--long;
+      }
+    }
+  }
+
+
+
+  &--short-date {
+    @media (min-width: @screen-sm) {
+
+      .event__date {
+        top: @event_date_width--short;
+        width: @event_date_width--short;
+      }
+
+      .event__text-wrap {
+        min-height: @event_date_width--short;
+      }
+    }
+  }
+}
